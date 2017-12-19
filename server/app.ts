@@ -7,6 +7,9 @@ import * as path from 'path';
 
 import setRoutes from './routes';
 
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
+import { schema } from './graphql/schema';
+
 const app = express();
 dotenv.load({ path: '.env' });
 app.set('port', (process.env.PORT || 3000));
@@ -14,6 +17,12 @@ app.set('port', (process.env.PORT || 3000));
 app.use('/', express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// The GraphQL endpoint
+app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+
+// GraphiQL, a visual editor for queries
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 let mongodbURI;
 if (process.env.NODE_ENV === 'test') {
@@ -46,5 +55,7 @@ mongodb
   .catch((err) => {
     console.error(err);
 });
+
+
 
 export { app };
